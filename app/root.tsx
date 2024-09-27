@@ -4,10 +4,20 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  json,
+  useLoaderData,
+  useOutletContext,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
+import type { ActionFunctionArgs, LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 
 import "./tailwind.css";
+import { authenticator } from "./routes/.server/auth";
+import { DefaultProfileImage, GoogleIcon, GoogleLoginButton, ProfileSettings } from "./routes/components";
+import axios from "axios";
+import { FLASK_API_URL } from "./routes/.server/constants";
+import { prisma } from "./routes/.server/prisma";
+import { CVUploadResponse } from "./routes/.server/dtos";
+import { OutletContext } from "./routes/.server/types";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -22,7 +32,15 @@ export const links: LinksFunction = () => [
   },
 ];
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const user = await authenticator.isAuthenticated(request)
+
+  return json(user, { status: 200 })
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const user = useLoaderData<typeof loader>()
+
   return (
     <html lang="en">
       <head>
@@ -31,7 +49,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="flex flex-col h-[100dvh] w-screen">
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -41,5 +59,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  const user = useLoaderData<typeof loader>()
+  const context: OutletContext = {
+    user: user
+  }
+
+  return <Outlet context={context}/>;
 }

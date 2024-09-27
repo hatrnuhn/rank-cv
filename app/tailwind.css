@@ -4,9 +4,23 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
-
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
+  }
+}
+
+
+@layer base {
+  * {
+    @apply text-stone-700 dark:text-stone-300;
+  }
+  body {
+    @apply bg-stone-200 dark:bg-stone-800;
+  }
+}
+
+@layer components {
+  .strip {
+    @apply bg-red-700 h-full w-3 rounded-sm content-[''] inline-block
   }
 }
