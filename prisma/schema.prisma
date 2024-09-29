@@ -17,10 +17,18 @@ model Profile {
   @@map("profiles")
 }
 
+model Job {
+  id      String  @id @default(cuid())
+  title   String  @unique
+  description String @default("")
+
+  @@map("jobs")
+}
+
 model Admin {
   id  String @id @default(cuid())
   username String @unique
   password String 
 
-  @@map("admins)
+  @@map("admins")
 }

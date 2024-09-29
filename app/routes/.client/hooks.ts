@@ -1,6 +1,7 @@
 import { FetcherWithComponents, useFetcher } from "@remix-run/react";
 import { AppData } from "@remix-run/react/dist/data";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { RootIndexContexts } from "~/contexts";
 
 export type FetcherWithComponentsReset<T> = FetcherWithComponents<T> & {
     reset: () => void;
@@ -20,3 +21,7 @@ export function useFetcherWithReset<T = AppData>(): FetcherWithComponentsReset<T
       reset: () => setData(undefined),
     };
   }
+
+export const useRootIndexContext = () => {
+  return useContext(RootIndexContexts)
+}

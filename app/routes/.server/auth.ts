@@ -1,7 +1,7 @@
 import { GoogleStrategy } from "remix-auth-google";
 import { Authenticator } from "remix-auth";
 import { sessionStorage } from "./session";
-import { Profile } from "./types";
+import { Profile } from "../../types";
 import { prisma } from "./prisma";
 
 

@@ -1,5 +1,10 @@
-import { Form, Link, useNavigate } from "@remix-run/react"
-import { Profile } from "../.server/types"
+import { Form, Link, useFetcher } from "@remix-run/react"
+import { Job, Profile, isArrayOfSchema } from "../types"
+import { FC, useCallback, useEffect, useState } from "react"
+import { Button } from "./ui/button"
+import { useRootIndexContext } from "~/routes/.client/hooks"
+import { action as uploadAction } from "~/routes/upload"
+import { Input } from "./ui/input"
 
 export const DefaultProfileImage = () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="bi bi-person-fill rounded-full p-1" viewBox="0 0 16 16">
@@ -9,18 +14,18 @@ export const DefaultProfileImage = () => (
 
 export const GoogleLoginButton = ({ content }: { content?: string }) => (
     <Form method="post" action="/auth/google" className="group">
-        <button className="flex items-center px-3 py-1 rounded-lg shadow bg-stone-300 dark:bg-stone-900 group-hover:bg-stone-500">
+        <Button className="flex items-center px-3 py-1 rounded-full shadow-lg bg-muted text-sm" variant={'ghost'}>
             {content ? content : "Login with Google"}
-            <span className="box w-10 h-10">
+            <span className="box w-10 h-10 flex items-center">
                 <GoogleIcon />
             </span>
-        </button>
+        </Button>
     </Form>
 )
 
 export const LogoutButton = () => (
-    <Form method="post" action="/logout" className="bg-stone-300 dark:bg-stone-900 px-2 py-1 rounded-md hover:bg-stone-500">
-        <button>Logout</button>
+    <Form method="post" action="/logout">
+        <Button className="bg-muted px-2 py-1 rounded-full" variant={"ghost"}>Logout</Button>
     </Form>
 )
 
@@ -31,10 +36,12 @@ export const GoogleIcon = () => (
 export const ProfileSettings = ({ user }: { user: Profile }) => {
 
     return (
-        <div className="group relative" tabIndex={1}>
-            <p className="flex items-center gap-2">
-                Hi, {user.name}
-                <span className="block h-10 w-10 rounded-full overflow-hidden">
+        <div className="group relative bg-muted shadow-lg px-2 py-1 rounded-full" tabIndex={1}>
+            <p className="flex items-center gap-2 text-sm ps-4">
+                <span className="truncate">
+                    Hi, {user.name}
+                </span>
+                <span className="rounded-full max-h-10 max-w-10 overflow-hidden">
                 {
                     user.image ? 
                     <img src={user.image} alt="Profile image"/> :
@@ -76,5 +83,98 @@ export const Footer = () => {
                 </Link>
             </p>
         </div>
+    )
+}
+
+type JobItemProps = {
+    job: Job
+}
+
+const JobItem: FC<JobItemProps> = ({ job }) => {
+    const { setIsJobDescShown, isJobDescShown, shownJob, setShownJob } = useRootIndexContext()
+
+    const onClick = useCallback(() => {
+        setShownJob(job)
+        setIsJobDescShown(job.id === shownJob?.id ? !isJobDescShown : true)
+    }, [setIsJobDescShown, setShownJob, isJobDescShown, job.id, shownJob])
+
+    return (
+        <li className={`${isJobDescShown && shownJob?.id === job.id ? 'bg-background shadow-lg' : ''} rounded`}>
+            <h1>
+                <Button variant="ghost" className={`w-full flex justify-start rounded`} onClick={() => onClick()}>
+                    {job.title}
+                </Button>
+            </h1>
+        </li>
+    )
+}
+
+type JobListProps = {
+    jobs: Job[]
+}
+
+export const JobsList: FC<JobListProps> = ({ jobs }) => {
+    return (
+        <>
+            <h3>
+                Vacant Positions
+            </h3>
+            {
+                jobs.length === 0 ? 
+                <p>
+                    No current vacant jobs
+                </p> :
+                <ul className="mt-4 flex flex-col gap-1">
+                    {isArrayOfSchema(Job, jobs) && 
+                        jobs.map(j => 
+                        <>
+                            <JobItem key={j.id} job={j} />
+                        </>
+                    )}
+                </ul>
+            }
+        </>
+    )   
+}
+
+export const UploadForm = () => {
+    const fetcher = useFetcher<typeof uploadAction>()
+    const [data, setData] = useState(fetcher.data)
+
+    useEffect(() => {
+        if (fetcher.state === 'idle')
+            setData(fetcher.data)
+
+    }, [fetcher.state])
+
+    if (data && data.status < 400)
+        return (
+            <div className="flex items-center gap-1">
+                <p>
+                    Uploaded successfully. Upload again?
+                </p>
+                <ReloadButton className="w-4 h-4" resetFn={() => setData(undefined)}/>
+            </div>
+        )
+    else if (fetcher.state === 'idle' && data && data.status > 399) {
+        return (
+            <div className="flex items-center gap-1">
+                <p>Could not process your file</p>
+                <ReloadButton className="h-4 w-4" resetFn={() => setData(undefined)}/>
+            </div>
+        )
+    } else return (
+        <fetcher.Form method="post" action="/upload" encType="multipart/form-data" className="bg-muted flex justify-center items-center rounded-full overflow-hidden shadow-lg max-w-96">
+            <Input type="file" name="file" id="file" className="border-none"/>
+            <Button className="py-1 px-2 rounded-none bg-muted hover:shadow-lg" variant={"ghost"}>Upload</Button>
+            <div className="flex items-center gap-1">
+                {
+                    fetcher.state !== 'idle' && 
+                    <>
+                        <em>Submitting...</em>
+                    </>
+                }
+            </div>
+        </fetcher.Form>
     )
 }
