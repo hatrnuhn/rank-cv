@@ -7,6 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Admin {
+  id       String @id @default(cuid())
+  username String @unique
+  password String
+
+  @@map("admins")
+}
+
+model Job {
+  id          String @id @default(cuid())
+  title       String @unique
+  description String @default("")
+
+  @@map("jobs")
+}
+
 model Profile {
   id     String  @id @default(cuid())
   email  String  @unique
@@ -15,20 +31,4 @@ model Profile {
   image  String?
 
   @@map("profiles")
-}
-
-model Job {
-  id      String  @id @default(cuid())
-  title   String  @unique
-  description String @default("")
-
-  @@map("jobs")
-}
-
-model Admin {
-  id  String @id @default(cuid())
-  username String @unique
-  password String 
-
-  @@map("admins")
 }
