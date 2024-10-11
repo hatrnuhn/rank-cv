@@ -2,8 +2,11 @@
 import { GoogleStrategy } from 'remix-auth-google'
 import { prisma } from './prisma'
 import { Authenticator } from 'remix-auth'
-import { Profile } from '@prisma/client'
-import { userSesssionStorage } from './sessions'
+import { Admin, Profile } from '@prisma/client'
+import { adminSessionStorage, userSesssionStorage } from './sessions'
+import { FormStrategy } from 'remix-auth-form'
+import { isAdmin } from '~/lib/typeguards'
+import bcrypt from 'bcryptjs'
 
 const googleStrategy = new GoogleStrategy(
   {
@@ -29,3 +32,28 @@ const googleStrategy = new GoogleStrategy(
 
 export const userAuthenticator = new Authenticator<Profile>(userSesssionStorage)
 userAuthenticator.use(googleStrategy)
+
+const adminStrategy = new FormStrategy(async ({ form }) => {
+  const username = form.get('username')
+  const password = form.get('password')
+  const admin = { username, password }
+
+  if (!isAdmin(admin))
+    throw new Error('unauthenticated')
+
+  const adminDb = await prisma.admin.findUniqueOrThrow({
+    where: {
+      username: admin.username
+    }
+  })
+
+  await bcrypt.compare(admin.password, adminDb.password) 
+  
+  return {
+    id: adminDb.id,
+    username: adminDb.username
+  }
+})
+
+export const adminAuthenticator = new Authenticator<Omit<Admin, 'password'>>(adminSessionStorage)
+adminAuthenticator.use(adminStrategy)

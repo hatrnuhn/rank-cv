@@ -69,7 +69,7 @@
 }
 
 @layer components {
-  .job-modal-html {
+  .innerHTML {
     @apply flex flex-col text-justify;
 
     h2, h3 {
@@ -83,6 +83,44 @@
     ul {
       @apply list-[circle] ps-6;
     }
-    
+  }
+
+  .loader div {
+    @apply animate-loading rounded-full h-full w-full absolute;
+  }
+
+  .loader div:nth-child(1) {
+    @apply bg-foreground/90;
+    animation-delay: 150ms;
+  }
+  
+  .loader div:nth-child(2) {
+    @apply bg-foreground/80;
+    animation-delay: 300ms;
+  }
+  
+  .loader div:nth-child(3) {
+    @apply bg-foreground/70;
+    animation-delay: 450ms;
+  }
+  
+  .loader div:nth-child(4) {
+    @apply bg-foreground/60;
+    animation-delay: 600ms;
+  }
+  
+  .loader div:nth-child(5) {
+    @apply bg-foreground/50;
+    animation-delay: 750ms;
+  }   
+
+  @keyframes loading {
+    0% {
+      transform: rotate(0deg) translateY(-100%);
+    }
+  
+    60%, 100% {
+      transform: rotate(360deg) translateY(-100%);
+    }
   }
 }

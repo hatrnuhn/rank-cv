@@ -40,3 +40,23 @@ export const {
   commitSession: commitUserSession, 
   destroySession: destroyUserSession 
 } = userSesssionStorage
+
+export const adminSessionStorage = createCookieSessionStorage({
+  cookie: {
+    name: "_adminSession",
+    path: "/",
+    httpOnly: true,
+    sameSite: "lax",
+    secrets: [COOKIE_SECRET],
+    // Set domain and secure only if in production
+    ...(isProduction
+      ? { domain: "your-production-domain.com", secure: true }
+      : {}),  
+  }
+})
+
+export const {
+  commitSession: commitAdminSession,
+  destroySession: destroyAdminSession,
+  getSession: getAdminSession
+} = adminSessionStorage

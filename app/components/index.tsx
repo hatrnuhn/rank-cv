@@ -1,6 +1,5 @@
 import { Moon, Sun } from "lucide-react"
 import { Theme, useTheme } from "remix-themes"
-
 import { Button, ButtonProps } from "./ui/button"
 import {
   DropdownMenu,
@@ -8,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
-import React from "react"
+import React, { SetStateAction } from "react"
 import { cn } from "~/lib/utils"
 import { Command, CommandInput, CommandList } from "./ui/command"
 import { CommandItem } from "cmdk"
@@ -19,38 +18,62 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/t
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 import { loader as jobsLoader } from '~/routes/resources.jobs'
+import { loader as profilesLoader } from '~/routes/admin.resources.profiles'
 import { useDebounce } from "~/hooks"
 import { Input } from "./ui/input"
+import { DialogDescription } from "@radix-ui/react-dialog"
+import { ScrollArea } from "./ui/scroll-area"
+import { isJob } from "~/lib/typeguards"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 
-export function ThemePicker() {
-  const [theme, setTheme, metadata] = useTheme()
+export const ThemePicker = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
+  ({ className, ...props }, ref) => {
+    const [theme, setTheme, metadata] = useTheme()
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant={'ghost'} size="icon">
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="shadow-black/20">
-        <DropdownMenuItem onClick={() => setTheme(Theme.LIGHT)} className={`${theme === Theme.LIGHT && metadata.definedBy !== 'SYSTEM' ? 'bg-muted text-muted-foreground' : ''}`}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme(Theme.DARK)} className={`${theme === Theme.DARK && metadata.definedBy !== 'SYSTEM' ? 'bg-muted text-muted-foreground' : ''}`}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme(null)} className={`${metadata.definedBy === 'SYSTEM' ? 'bg-muted text-muted-foreground' : ''}`}>
-          System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
+    return (  
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant={'ghost'} 
+            size="icon"
+            {...props}
+            className={className}
+            ref={ref}
+          >
+            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="shadow-black/20">
+          <DropdownMenuItem onClick={() => setTheme(Theme.LIGHT)} className={`${theme === Theme.LIGHT && metadata.definedBy !== 'SYSTEM' ? 'bg-muted text-muted-foreground' : ''}`}>
+            Light
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme(Theme.DARK)} className={`${theme === Theme.DARK && metadata.definedBy !== 'SYSTEM' ? 'bg-muted text-muted-foreground' : ''}`}>
+            Dark
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme(null)} className={`${metadata.definedBy === 'SYSTEM' ? 'bg-muted text-muted-foreground' : ''}`}>
+            System
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu> 
+    )
+  }
+)
 
 export const GoogleLoginButton = React.forwardRef<HTMLButtonElement, ButtonProps & { withText?: boolean }>(
-  ({ className, variant, size, withText, ...props }, ref) => {
+  ({ className, variant, size, withText = false, ...props }, ref) => {
+    if (withText) 
+      return (
+        <GoogleLoginForm 
+          className={className}
+          ref={ref}
+          {...props}
+          variant={variant}
+          size={size}
+          withText={true}
+        />
+      )
     return (
       <TooltipProvider>
         <Tooltip>
@@ -61,7 +84,7 @@ export const GoogleLoginButton = React.forwardRef<HTMLButtonElement, ButtonProps
               {...props}
               variant={variant}
               size={size}
-              withText={withText}
+              withText={false}
             />
           </TooltipTrigger>
           <TooltipContent>
@@ -77,7 +100,7 @@ GoogleLoginButton.displayName = 'GoogleLoginButton'
 const GoogleLoginForm = React.forwardRef<HTMLButtonElement, ButtonProps & { withText?: boolean }>(
   ({ className, variant, size, withText, ...props }, ref) => {
     const [theme] = useTheme()
-    
+
     return (
       <Form className="inline" action="/auth/google" method="post">
         <Button 
@@ -112,7 +135,7 @@ export const PageIcon = React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGEle
 PageIcon.displayName = 'PageIcon'
 
 type VacantJobsProps = {
-  jobs: Job[]
+  jobs?: Job[]
 }
 export const VacantJobs: React.FC<VacantJobsProps> = ({ jobs }) => {
   const [job, setJob] = React.useState<Job | null>(null)
@@ -152,7 +175,7 @@ export const VacantJobs: React.FC<VacantJobsProps> = ({ jobs }) => {
                     </Button>
                   </DialogTrigger>
                 </CommandItem>
-              ) : jobs.length > 0 && 
+              ) : (jobs && jobs.length > 0) && 
               jobs.map(
                 d => 
                 <CommandItem key={d.id}>
@@ -176,11 +199,13 @@ export const VacantJobs: React.FC<VacantJobsProps> = ({ jobs }) => {
           <DialogHeader>
             <DialogTitle asChild>
               <h1>
-                {job.title}
+                <DialogDescription>
+                  {job.title}
+                </DialogDescription>
               </h1>
             </DialogTitle>
           </DialogHeader>
-          <div className="max-h-52 overflow-y-auto bg-accent shadow-md shadow-black/20 rounded-lg py-2 px-4 job-modal-html md:max-h-none" dangerouslySetInnerHTML={{ __html: job.description }} />
+          <div className="max-h-52 overflow-y-auto bg-accent shadow-md shadow-black/20 rounded-lg py-2 px-4 innerHTML md:max-h-none" dangerouslySetInnerHTML={{ __html: job.description }} />
         </DialogContent>
       }
     </Dialog>
@@ -220,7 +245,11 @@ export const LogoutButton = () => {
   ) 
 }
 
-export const UploadInput = () => {
+type UploadInputProps = {
+  isSubmitting: boolean
+}
+
+export const UploadInput: React.FC<UploadInputProps> = ({ isSubmitting }) => {
   return (
     <>
       <Input
@@ -231,9 +260,137 @@ export const UploadInput = () => {
         type="submit" 
         className="rounded-l-none"
         variant={'ghost'}
+        disabled={isSubmitting}
       >
-        Upload
+        {isSubmitting ? <Spinner className="h-1.5 w-1.5"/> : <>Upload</>}
       </Button>
     </>
   )
 }
+
+export const Spinner = React.forwardRef<HTMLDivElement, React.ComponentPropsWithRef<'div'>>(
+  ({className, ...props}, ref) => { 
+    return (
+      <div
+        ref={ref}
+        className={cn('w-2 h-2', className, 'loader relative')}
+        {...props}
+      >
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+      </div>
+  )}
+)
+
+type AdminTabProps = {
+  data: (Job | Profile)[]
+  setJob?: React.Dispatch<SetStateAction<Job | null>>
+  setProfile?: React.Dispatch<SetStateAction<Profile | null>>
+}
+export const AdminTab: React.FC<AdminTabProps> = ({ data, setJob, setProfile }) => {
+  const [filter, setFilter] = React.useState('')
+  const fetcher = useFetcher<typeof jobsLoader | typeof profilesLoader>()
+
+  const onChange = useDebounce(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilter(e.target.value)
+
+    const q = `?q=${e.target.value}`
+
+    fetcher.load((setProfile ? '/admin/resources/profiles' : '/resources/jobs') + (e.target.value ? q : ''))
+  })
+
+  return (
+    <Command
+      className="mt-4 group bg-muted shadow-black/10 shadow-md"
+      value={filter}
+      onChange={onChange}
+      shouldFilter={false}
+    >
+      <CommandInput placeholder="Search for a job"/>
+      <ScrollArea>
+        <CommandList className="max-h-0 group-focus-within:max-h-36 transition-all duration-500 ease-in-out overflow-visible">
+          {
+            fetcher.data ? 
+              fetcher.data.map(
+                d => 
+                <CommandItem key={d.id}>
+                  <Button 
+                    variant={'ghost'} 
+                    className="w-full rounded-none" 
+                    onClick={() => {
+                      if (setJob && isJob(d))
+                        setJob(d)
+                      else if (setProfile && !isJob(d))
+                        setProfile(d)
+                    }}
+                  >
+                    { isJob(d) ? d.title : d.name }
+                  </Button>
+                </CommandItem>
+              ) : (data && data.length > 0) && 
+              data.map(
+                d => 
+                <CommandItem key={d.id}>
+                    <Button 
+                      variant={'ghost'} 
+                      className="w-full rounded-none" 
+                      onClick={() => {
+                        if (setJob && isJob(d))
+                          setJob(d)
+                        else if (setProfile && !isJob(d))
+                          setProfile(d)
+                      }}
+                    >
+                      { isJob(d) ? d.title : d.name }
+                    </Button>
+                </CommandItem>
+              )
+          }
+        </CommandList>
+      </ScrollArea>
+    </Command>
+  )
+}
+
+type AdminTableProps = {
+  colNames: string[]
+  data: Profile[]
+}
+
+export const AdminTable: React.FC<AdminTableProps> = ({ colNames, data }) => {
+  return (
+    <ScrollArea className="h-full">
+      <Table className="w-full">
+          <TableHeader className="sticky top-0 bg-muted">
+              <TableRow>
+                {colNames.map((cn, i) => <TableHead key={cn + i}>{cn}</TableHead>)}
+              </TableRow>
+          </TableHeader>
+          <TableBody>
+            {
+              data.map((r, i) => ({
+                rank: i + 1,
+                name: r.name,
+                email: r.email,
+              })).map(r => (
+                <TableRow key={r.rank}>
+                  {
+                    Object.entries(r)
+                      .map(([key, value]) => (
+                        <TableCell key={key}>
+                          {value}
+                        </TableCell>
+                      ))
+                  }
+                </TableRow>
+              ))
+            }
+          </TableBody>
+      </Table>
+    </ScrollArea>
+  )
+}
+

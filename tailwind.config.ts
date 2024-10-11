@@ -9,6 +9,9 @@ export default {
 	],
 	theme: {
 		extend: {
+			animation: {
+				'loading': 'loading 1.875s infinite backwards'
+			},
 			fontFamily: {
 				sans: ['Inter',"ui-sans-serif","system-ui","sans-serif",'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji'],
 				texGyreGeros: ['Tex Gyre Heros'],

@@ -14,6 +14,12 @@ import { PreventFlashOnWrongTheme, ThemeProvider, useTheme } from "remix-themes"
 import { themeSessionResolver } from "./routes/.server/sessions";
 import clsx from "clsx";
 
+export const links = () => {
+  return [
+    { rel: "icon", href: "/pageup.svg" }
+  ]
+}
+
 export async function loader({ request }: LoaderFunctionArgs) {
   const { getTheme } = await themeSessionResolver(request)
   return {

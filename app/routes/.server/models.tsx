@@ -39,6 +39,43 @@ export const deleteJob = async (id: string) => {
     })
 }
 
+export const getProfiles = async (filter: string | null = null, withResumeOnly: boolean = true) => {
+    if (filter)
+        return await prisma.profile.findMany({
+            where: {
+                AND: [
+                    {
+                        OR: ['name', 'email', 'id'].map(f => ({ [f]: { contains: filter, mode: 'insensitive' } })),
+                    },
+                    {
+                        resume: {
+                            not: withResumeOnly ? null : undefined
+                        }
+                    }
+                ]
+            }
+        })
+
+    return await prisma.profile.findMany({
+        where: {
+            resume: {
+                not: withResumeOnly ? null : undefined
+            }
+        }
+    })
+}
+
+export const getProfile = async (key: string) => {
+    return await prisma.profile.findFirst({
+        where: {
+            OR: [
+                {id: key},
+                {email: key}
+            ]
+        }
+    })
+}
+
 export const updateProfile = async ({ id, email, image, name, resume }: Profile) => {
     await prisma.profile.update({
         where: {
