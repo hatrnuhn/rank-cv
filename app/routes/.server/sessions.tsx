@@ -1,9 +1,10 @@
-import { createCookieSessionStorage } from "@remix-run/node"
-import { createThemeSessionResolver } from "remix-themes"
+import { createCookieSessionStorage } from "@remix-run/node";
+import { createThemeSessionResolver } from "remix-themes";
 
-const COOKIE_SECRET = process.env.COOKIE_SECRET || 'SecretTerces'
+const COOKIE_SECRET = process.env.COOKIE_SECRET || "SecretTerces";
+const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN;
 // You can default to 'development' if process.env.NODE_ENV is not set
-const isProduction = process.env.NODE_ENV === "production"
+const isProduction = process.env.NODE_ENV === "production";
 
 const themeSessionStorage = createCookieSessionStorage({
   cookie: {
@@ -13,13 +14,12 @@ const themeSessionStorage = createCookieSessionStorage({
     sameSite: "lax",
     secrets: [COOKIE_SECRET],
     // Set domain and secure only if in production
-    ...(isProduction
-      ? { domain: "your-production-domain.com", secure: true }
-      : {}),
+    ...(isProduction ? { domain: COOKIE_DOMAIN, secure: true } : {}),
   },
-})
+});
 
-export const themeSessionResolver = createThemeSessionResolver(themeSessionStorage)
+export const themeSessionResolver =
+  createThemeSessionResolver(themeSessionStorage);
 
 export const userSesssionStorage = createCookieSessionStorage({
   cookie: {
@@ -29,17 +29,15 @@ export const userSesssionStorage = createCookieSessionStorage({
     sameSite: "lax",
     secrets: [COOKIE_SECRET],
     // Set domain and secure only if in production
-    ...(isProduction
-      ? { domain: "your-production-domain.com", secure: true }
-      : {}),
-  }
-})
+    ...(isProduction ? { domain: COOKIE_DOMAIN, secure: true } : {}),
+  },
+});
 
-export const { 
-  getSession: getUserSession, 
-  commitSession: commitUserSession, 
-  destroySession: destroyUserSession 
-} = userSesssionStorage
+export const {
+  getSession: getUserSession,
+  commitSession: commitUserSession,
+  destroySession: destroyUserSession,
+} = userSesssionStorage;
 
 export const adminSessionStorage = createCookieSessionStorage({
   cookie: {
@@ -49,14 +47,12 @@ export const adminSessionStorage = createCookieSessionStorage({
     sameSite: "lax",
     secrets: [COOKIE_SECRET],
     // Set domain and secure only if in production
-    ...(isProduction
-      ? { domain: "your-production-domain.com", secure: true }
-      : {}),  
-  }
-})
+    ...(isProduction ? { domain: COOKIE_DOMAIN, secure: true } : {}),
+  },
+});
 
 export const {
   commitSession: commitAdminSession,
   destroySession: destroyAdminSession,
-  getSession: getAdminSession
-} = adminSessionStorage
+  getSession: getAdminSession,
+} = adminSessionStorage;

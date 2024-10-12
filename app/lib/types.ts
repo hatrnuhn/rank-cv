@@ -1,26 +1,46 @@
-import { Static, Type } from '@sinclair/typebox'
+import { Static, Type } from "@sinclair/typebox";
+import { Admin, Job } from "@prisma/client";
+import { ERROR_NO_FILE, ERROR_WRONG_FILE } from "./errors";
 
 export const Score = Type.Object({
-    candidateId: Type.String(),
-    score: Type.Number()
-})
+  candidateId: Type.String(),
+  score: Type.Number(),
+});
 
-export type Score = Static<typeof Score>
+export type Score = Static<typeof Score>;
 
-export const Job = Type.Object({
-    id: Type.String(),
-    title: Type.String(),
-    description: Type.String()
-})
+export const isNoFileError = (
+  payload: unknown,
+): payload is typeof ERROR_NO_FILE => {
+  return typeof payload === "string" && payload === ERROR_NO_FILE;
+};
 
-export type Job = Static<typeof Job>
+export const isWrongFileError = (
+  payload: unknown,
+): payload is typeof ERROR_WRONG_FILE => {
+  return typeof payload === "string" && payload === ERROR_WRONG_FILE;
+};
 
-export const Profile = Type.Object({
-    id: Type.String(),
-    name: Type.String(),
-    email: Type.String(),
-    resume: Type.Union([Type.String(), Type.Null()]),
-    image: Type.Union([Type.String(), Type.Null()])
-})
+export const isAdmin = (payload: unknown): payload is Omit<Admin, "id"> => {
+  return (
+    typeof payload === "object" &&
+    payload !== null &&
+    "username" in payload &&
+    "password" in payload &&
+    typeof payload.username === "string" &&
+    typeof payload.password === "string"
+  );
+};
 
-export type Profile = Static<typeof Profile>
+export const isJob = (payload: unknown): payload is Job => {
+  return (
+    typeof payload === "object" &&
+    payload !== null &&
+    "id" in payload &&
+    "title" in payload &&
+    "description" in payload &&
+    typeof payload.id === "string" &&
+    typeof payload.title === "string" &&
+    typeof payload.description === "string"
+  );
+};

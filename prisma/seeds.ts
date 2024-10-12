@@ -1,26 +1,26 @@
 import { Admin, Job } from "@prisma/client";
 import { prisma } from "~/routes/.server/prisma";
-import bcrypt from 'bcryptjs'
+import bcrypt from "bcryptjs";
 
 const generateAdmins = async (n: number) => {
-    const admins: Omit<Admin, 'id'>[] = [];
+  const admins: Omit<Admin, "id">[] = [];
 
-    for (let i = 0; i < n; i++) {
-        const adminString = `admin${i + 1}`
-        const password = await bcrypt.hash(adminString, 10)
-        admins.push({
-            username: adminString,
-            password: password
-        })
-    }
+  for (let i = 0; i < n; i++) {
+    const adminString = `admin${i + 1}`;
+    const password = await bcrypt.hash(adminString, 10);
+    admins.push({
+      username: adminString,
+      password: password,
+    });
+  }
 
-    return admins;
-}
+  return admins;
+};
 
-const jobs: Omit<Job, 'id'>[] = [
-    {
-        title: 'AI Researcher',
-        description: `<h2>About the job</h2>
+const jobs: Omit<Job, "id">[] = [
+  {
+    title: "AI Researcher",
+    description: `<h2>About the job</h2>
         <p>We are a leading shipping and logistic company in Indonesia with the forefront of AI innovation, dedicated to pushing the boundaries of technology. We seek a talented AI Researcher to join our team and contribute to cutting-edge projects.</p>
         <h3>Responsibilities:</h3>
         <ul>
@@ -36,11 +36,11 @@ const jobs: Omit<Job, 'id'>[] = [
             <li>Strong programming skills in Python, R, or similar languages.</li>
             <li>Excellent problem-solving and analytical abilities.</li>
             <li>Willing to be placed in Surabaya.</li>
-        </ul>`
-    },
-    {
-        title: 'Data Scientist',
-        description: `<h2>About the job</h2>
+        </ul>`,
+  },
+  {
+    title: "Data Scientist",
+    description: `<h2>About the job</h2>
         <p>We are a leading shipping and logistic company in Indonesia at the forefront of AI innovation, dedicated to pushing the boundaries of technology. We are looking for a talented <strong>Data Scientist</strong> to join our team and leverage big data to drive business solutions.</p>
         <h3>Responsibilities:</h3>
         <ul>
@@ -56,11 +56,11 @@ const jobs: Omit<Job, 'id'>[] = [
             <li>Proficiency in Python, SQL, or related tools.</li>
             <li>Strong communication and presentation skills.</li>
             <li>Willing to be placed in Jakarta.</li>
-        </ul>`
-    },
-    {
-        title: 'DevOps Engineer',
-        description: `<h2>About the job</h2>
+        </ul>`,
+  },
+  {
+    title: "DevOps Engineer",
+    description: `<h2>About the job</h2>
         <p>We are a leading shipping and logistic company in Indonesia, spearheading AI innovation. We are looking for a skilled <strong>DevOps Engineer</strong> to support the development and deployment of AI-driven systems.</p>
         <h3>Responsibilities:</h3>
         <ul>
@@ -76,11 +76,11 @@ const jobs: Omit<Job, 'id'>[] = [
             <li>Expertise in containerization (Docker, Kubernetes).</li>
             <li>Excellent knowledge of CI/CD tools (Jenkins, GitLab CI).</li>
             <li>Willing to be placed in Medan.</li>
-        </ul>`
-    },
-    {
-        title: 'Software Engineer',
-        description: `<h2>About the job</h2>
+        </ul>`,
+  },
+  {
+    title: "Software Engineer",
+    description: `<h2>About the job</h2>
         <p>We are a leading shipping and logistics company in Indonesia, constantly innovating with AI. We are seeking an experienced <strong>Software Engineer</strong> to help us develop advanced AI-based applications.</p>      
         <h3>Responsibilities:</h3>
         <ul>
@@ -96,11 +96,11 @@ const jobs: Omit<Job, 'id'>[] = [
             <li>Experience with software architecture and design patterns.</li>
             <li>Familiarity with AI/ML frameworks is a plus.</li>
             <li>Willing to be placed in Bandung.</li>
-        </ul>`
-    },
-    {
-        title: 'Product Manager',
-        description: `<h2>About the job</h2>
+        </ul>`,
+  },
+  {
+    title: "Product Manager",
+    description: `<h2>About the job</h2>
         <p>We are a leading shipping and logistics company in Indonesia, driving AI innovation in the industry. We are looking for a <strong>Product Manager</strong> to lead AI-powered product development initiatives.</p>       
         <h3>Responsibilities:</h3>
         <ul>
@@ -116,20 +116,20 @@ const jobs: Omit<Job, 'id'>[] = [
             <li>Strong leadership and communication skills.</li>
             <li>Ability to work closely with technical teams to align on product strategy.</li>
             <li>Willing to be placed in Bali.</li>
-        </ul>`
-    }
-]
+        </ul>`,
+  },
+];
 
 const main = async () => {
-    const admins = await generateAdmins(5)
-    
-    await prisma.admin.createMany({
-        data: admins
-    })
+  const admins = await generateAdmins(5);
 
-    await prisma.job.createMany({
-        data: jobs
-    })
-}
+  await prisma.admin.createMany({
+    data: admins,
+  });
 
-main()
+  await prisma.job.createMany({
+    data: jobs,
+  });
+};
+
+main();

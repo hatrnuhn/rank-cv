@@ -1,3 +1,3 @@
-import TurndownService from 'turndown'
+import TurndownService from "turndown";
 
-export const turndownService = new TurndownService()
+export const turndownService = new TurndownService();

@@ -9,27 +9,29 @@ import {
 import type { LoaderFunctionArgs } from "@remix-run/node";
 
 import "./tailwind.css";
-import "./fonts.css"
-import { PreventFlashOnWrongTheme, ThemeProvider, useTheme } from "remix-themes";
+import "./fonts.css";
+import {
+  PreventFlashOnWrongTheme,
+  ThemeProvider,
+  useTheme,
+} from "remix-themes";
 import { themeSessionResolver } from "./routes/.server/sessions";
 import clsx from "clsx";
 
 export const links = () => {
-  return [
-    { rel: "icon", href: "/pageup.svg" }
-  ]
-}
+  return [{ rel: "icon", href: "/pageup.svg" }];
+};
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { getTheme } = await themeSessionResolver(request)
+  const { getTheme } = await themeSessionResolver(request);
   return {
-    theme: getTheme()
-  }
+    theme: getTheme(),
+  };
 }
 
 export function App() {
-  const data = useLoaderData<typeof loader>()
-  const [theme] = useTheme()
+  const data = useLoaderData<typeof loader>();
+  const [theme] = useTheme();
   return (
     <html lang="en" className={clsx(theme)}>
       <head>
@@ -49,10 +51,10 @@ export function App() {
 }
 
 export default function AppProvidersWrapper() {
-  const data = useLoaderData<typeof loader>()
+  const data = useLoaderData<typeof loader>();
   return (
     <ThemeProvider specifiedTheme={data.theme} themeAction="/actions/set-theme">
-        <App />
+      <App />
     </ThemeProvider>
-  )
+  );
 }

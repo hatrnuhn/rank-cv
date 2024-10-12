@@ -22,7 +22,7 @@ module.exports = {
   ignorePatterns: ["!**/.server", "!**/.client"],
 
   // Base config
-  extends: ["eslint:recommended"],
+  extends: ["plugin:prettier/recommended"],
 
   overrides: [
     // React
@@ -83,11 +83,12 @@ module.exports = {
 
     // shadcn/ui
     {
-      files: ['app/components/ui/**/*.{ts,tsx}'],
+      files: ["app/components/ui/**/*.{ts,tsx}"],
       rules: {
-        "react/prop-types": 'off',
-        "react/no-unknown-property": 'off'
-      }
-    }
+        "react/prop-types": "off",
+        "react/no-unknown-property": "off",
+        "jsx-a11y/heading-has-content": "off",
+      },
+    },
   ],
 };
