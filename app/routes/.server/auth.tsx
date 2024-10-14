@@ -12,8 +12,7 @@ const googleStrategy = new GoogleStrategy(
   {
     clientID: process.env.G_OAUTH2_CID!,
     clientSecret: process.env.G_OAUTH2_CSECRET!,
-    callbackURL:
-      "https://5173-idx-rank-cv-1727278523892.cluster-mwrgkbggpvbq6tvtviraw2knqg.cloudworkstations.dev/auth/google/callback",
+    callbackURL: process.env.DOMAIN! + "/auth/google/callback",
   },
   async ({ profile }) => {
     // Get the user data from your DB or API using the tokens and profile

@@ -2,7 +2,7 @@ import { createCookieSessionStorage } from "@remix-run/node";
 import { createThemeSessionResolver } from "remix-themes";
 
 const COOKIE_SECRET = process.env.COOKIE_SECRET || "SecretTerces";
-const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN;
+const COOKIE_DOMAIN = process.env.DOMAIN!;
 // You can default to 'development' if process.env.NODE_ENV is not set
 const isProduction = process.env.NODE_ENV === "production";
 

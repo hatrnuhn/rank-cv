@@ -59,7 +59,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${process.env.FLASK_API_TOKEN}`,
+          Authorization:
+            process.env.NODE_ENV !== "production"
+              ? `Bearer ${process.env.FLASK_API_TOKEN}`
+              : undefined,
         },
       },
     );
