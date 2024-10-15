@@ -11,6 +11,7 @@ import { marked } from "marked";
 import { AdminTab, AdminTable } from "~/components/Admin";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Skeleton } from "~/components/ui/skeleton";
+import { adminAuthenticator } from "./.server/auth";
 
 export const meta: MetaFunction = () => {
   return [
@@ -19,7 +20,10 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader = async ({}: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const admin = await adminAuthenticator.isAuthenticated(request);
+  if (!admin) return new Response(null, { status: 401 });
+
   const jobs = await getJobs();
   const profiles = await getProfiles();
 

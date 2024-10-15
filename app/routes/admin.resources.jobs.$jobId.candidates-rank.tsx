@@ -13,7 +13,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   try {
     const response = await axios.post<Score[]>(
-      process.env.FLASK_API_URL! + "/jobs/ranks",
+      process.env.FLASK_API_URL! + "/applicants/ranks",
       {
         job_description: job?.description,
         candidates: candidates.map((c) => ({
@@ -23,7 +23,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.FLASK_API_TOKEN}`,
+          Authorization: process.env.NODE_ENV !== 'production' ? `Bearer ${process.env.FLASK_API_TOKEN}` : undefined,
         },
       },
     );
